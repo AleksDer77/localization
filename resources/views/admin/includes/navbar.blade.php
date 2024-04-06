@@ -10,6 +10,11 @@
                         {{ __('Главная') }}
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.languages.index') }}" class="nav-link {{ active_link('admin.languages*', 'text-primary') }}" aria-current="page" >
+                        {{ __('Языки') }}
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
