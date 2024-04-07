@@ -3,5 +3,7 @@
 @section('main.title', 'Главная')
 
 @section('main.content')
-    {{ __('Контент главной страницы') }}
+    {{ __('Язык по умолчанию: ') }} {{ app()->getLocale() }} <br>
+    {{ __('Язык резервный: ') }} {{ app()->getFallbackLocale() }}
+
 @endsection
