@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Ramsey\Collection\Collection;
 
 /**
  *
@@ -80,6 +81,20 @@ class Language extends Model
             ->where('active', true)
             ->where('fallback', true)
             ->first();
+    }
+
+    public static function getActive(): \Illuminate\Database\Eloquent\Collection
+    {
+        return self::query()
+            ->where('active', true)
+            ->get();
+    }
+
+    public static function findActive(string $id): self
+    {
+        return self::query()
+            ->where('active', true)
+            ->find($id);
     }
 
 }
