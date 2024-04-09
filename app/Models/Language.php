@@ -97,4 +97,16 @@ class Language extends Model
             ->find($id);
     }
 
+    public static function routePrefix(): string|null
+    {
+        $prefix = request()->segment(1);
+
+        $activeLanguages = static::getActive();
+
+        if ($activeLanguages->doesntContain('id', $prefix)) {
+            $prefix = null;
+        }
+        return $prefix;
+    }
+
 }
