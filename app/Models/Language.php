@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Ramsey\Collection\Collection;
 
 /**
@@ -33,6 +34,14 @@ class Language extends Model
     protected $keyType = 'string';
 
     public $incrementing = false;
+
+    public static function booted()
+    {
+        static::saved(function(Language $language) {
+            Cache::forget('languages');
+    });
+    }
+
     protected $fillable = [
         'id',
         'name',
@@ -69,32 +78,33 @@ class Language extends Model
 
     public static function findDefault(): self|null
     {
-        return self::query()
-            ->where('active', true)
-            ->where('default', true)
-            ->first();
+        return self::getActive()
+            ->firstWhere('default', true);
     }
 
     public static function findFallback(): self|null
     {
-        return self::query()
-            ->where('active', true)
-            ->where('fallback', true)
-            ->first();
+        return self::getActive()
+            ->firstWhere('fallback', true);
     }
 
     public static function getActive(): \Illuminate\Database\Eloquent\Collection
     {
-        return self::query()
-            ->where('active', true)
-            ->get();
+        return \Cache::remember(
+            'languages',
+            now()->addDay(),
+            function () {
+                return self::query()
+                    ->where('active', true)
+                    ->get();
+            }
+        );
     }
 
     public static function findActive(string $id): self
     {
-        return self::query()
-            ->where('active', true)
-            ->find($id);
+        return self::getActive()
+            ->firstWhere('id', $id);
     }
 
     public static function routePrefix(): string|null

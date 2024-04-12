@@ -19,6 +19,13 @@ class AppServiceProvider extends ServiceProvider
             $this->setDefaultLanguage();
             $this->setFallbackLanguage();
         }
+
+
+        if (app()->isProduction() === false) {
+            \DB::listen(function ($query){
+                info($query->sql);
+            });
+        }
     }
 
 

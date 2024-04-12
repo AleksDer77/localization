@@ -10,35 +10,47 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LanguageRouteMiddleware
 {
+    private string|null $prefix;
+
+    private string $currentLanguage;
+
+    private string $defaultLanguage;
+
+    public function __construct()
+    {
+        $this->prefix = Language::routePrefix();
+
+        $this->currentLanguage = app()->getLocale();
+
+        $this->defaultLanguage = Language::findDefault()->id;
+    }
+
     public function handle(Request $request, Closure $next): Response
     {
-        $prefix = Language::routePrefix();
-
-        $currentLanguage = app()->getLocale();
-
-        $defaultLanguage = Language::findDefault()->id;
-
-        if ($defaultLanguage === $currentLanguage) {
-            if (is_null($prefix)) {
+        if ($this->defaultLanguage === $this->currentLanguage) {
+            if (is_null($this->prefix)) {
                 return $next($request);
             }
-            dd(123);
+            return $this->redirect($request);
         }
 
-        if ($prefix === $currentLanguage) {
+        if ($this->prefix === $this->currentLanguage) {
             return $next($request);
         }
 
-      return $this->redirect($request, $currentLanguage, $prefix);
+        return $this->redirect($request);
     }
 
-    private function redirect(Request $request, string $language, string|null $prefix = null): RedirectResponse
-    {
-        $url = $language;
+    private function redirect(Request $request): RedirectResponse {
+        $url = $this->currentLanguage;
+
+        if ($url === $this->defaultLanguage) {
+            $url = '';
+        }
 
         $segments = $request->segments();
 
-        $prefix && array_shift($segments);
+        $this->prefix && array_shift($segments);
 
         if ($path = implode('/', $segments)) {
             $url .= "/$path";
